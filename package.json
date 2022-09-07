@@ -1,0 +1,25 @@
+{
+  "name": "espruino-loader",
+  "version": "1.0.0",
+  "author": "Daniel Radtke (DanTheMan827)",
+  "description": "Espruino loader for webpack",
+  "license": "MIT",
+  "main": "index.js",
+  "scripts": {},
+  "dependencies": {
+    "acorn": "^8.8.0",
+    "espruino": "^0.0.0",
+    "escodegen": "^2.0.0",
+    "esmangle": "^1.0.1"
+  },
+  "devDependencies": {},
+  "peerDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DanTheMan827/espruino-loader.git"
+  },
+  "bugs": {
+    "url": "https://github.com/DanTheMan827/espruino-loader/issues"
+  },
+  "homepage": "https://github.com/DanTheMan827/espruino-loader"
+}
