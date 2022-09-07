@@ -27,7 +27,14 @@ module.exports = function (content) {
   var path = require("path");
 
   function loadJS(basePath, displayPath, ...filePaths) {
-    var contents = [];
+    var contents = [`\n/* Concatenation of the following files\n\n${(() => {
+      var output = [];
+      filePaths.forEach(path => {
+        output.push("   " + displayPath + path)
+      });
+
+      return output.join("\n");
+    })()}\n*/`];
 
     filePaths.forEach(path => {
       console.log("Found " + path);
@@ -76,7 +83,7 @@ module.exports = function (content) {
     "/plugins/setTime.js"
   );
 
-  "esprima,esmangle,escodegen,acorn,utf8".split(",").forEach(module => {
+  "acorn,utf8,esprima,esmangle,escodegen".split(",").reverse().forEach(module => {
     if (require.resolve(module)) {
       output.unshift(`var ${module} = require("${module}");`)
     }
