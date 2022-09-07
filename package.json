@@ -5,7 +5,9 @@
   "description": "Espruino loader for webpack",
   "license": "MIT",
   "main": "index.js",
-  "scripts": {},
+  "scripts": {
+    "test": "echo \"I don't have any tests.\""
+  },
   "dependencies": {},
   "devDependencies": {},
   "peerDependencies": {
