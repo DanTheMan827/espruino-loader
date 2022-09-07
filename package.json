@@ -6,14 +6,14 @@
   "license": "MIT",
   "main": "index.js",
   "scripts": {},
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {},
+  "peerDependencies": {
     "acorn": "^8.8.0",
     "espruino": "^0.1.45",
     "escodegen": "^2.0.0",
     "esmangle": "^1.0.1"
   },
-  "devDependencies": {},
-  "peerDependencies": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/DanTheMan827/espruino-loader.git"
