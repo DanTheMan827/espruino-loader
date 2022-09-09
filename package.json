@@ -1,6 +1,6 @@
 {
   "name": "espruino-loader",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "Daniel Radtke (DanTheMan827)",
   "description": "Espruino loader for webpack",
   "license": "MIT",
