@@ -91,7 +91,7 @@ module.exports = {
 
     if (resourceFile == "index.js") {
         espruinoFiles.forEach(file => {
-          output.push(`${file == "espruino.js" ? "module.exports = " : ""}require("!!espruino-loader!espruino/${file}");`);
+          output.push(`${file == "espruino.js" ? "module.exports = " : ""}require("!espruino-loader!espruino/${file}");`);
         });
         console.log(output.join("\n"));
         return output.join("\n");
@@ -102,7 +102,7 @@ module.exports = {
     }
 
     if (resourceFile != "espruino.js" && resourceFile != "index.js") {
-      filePreOutput.push('var Espruino = require("!!espruino-loader!espruino/espruino.js");');
+      filePreOutput.push('var Espruino = require("!espruino-loader!espruino/espruino.js");');
       filePostOutput.push('module.exports = Espruino;');
     }
 
