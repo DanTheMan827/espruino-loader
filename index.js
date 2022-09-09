@@ -22,72 +22,108 @@
   SOFTWARE.
 */
 
-module.exports = function (content) {
-  var fs = require("fs");
-  var path = require("path");
+var fs = require("fs");
+var path = require("path");
 
-  function loadJS(basePath, displayPath, ...filePaths) {
-    var contents = [`\n/* Concatenation of the following files\n\n${(() => {
-      var output = [];
-      filePaths.forEach(path => {
-        output.push("   " + displayPath + path)
-      });
+function cleanIncludes(source) {
+  return source.replace(/require(?:\.resolve)?\(('serialport'|'nw\.gui'|"http"|"https"|"fs")\)/g, 'undefined');
+}
 
-      return output.join("\n");
-    })()}\n*/`];
+function loadJS(filePath) {
+  return cleanIncludes(fs.readFileSync(filePath, {encoding:"utf8"}))
+}
 
-    filePaths.forEach(path => {
-      console.log("Found " + path);
+function hasModule(mod) {
+  try {
+    require.resolve(mod);
 
-      contents.push(
-        "\n/* --------------------------------------------------------------\n" +
-        `   ${displayPath}${path}\n` +
-        "   -------------------------------------------------------------- */\n" +
-        fs.readFileSync(basePath + path, {encoding:"utf8"})
-        );
-    });
-
-    return contents;
+    return true;
+  } catch(e) {
+    return false;
   }
+}
 
-  var espruinoPath = path.dirname(require.resolve("espruino"));
-  console.log(espruinoPath);
-  var output = loadJS(espruinoPath, "EspruinoTools",
-    "/espruino.js",
-    "/core/utils.js",
-    "/core/config.js",
-    "/core/serial.js",
-    "/core/serial_chrome_serial.js",
-    "/core/serial_chrome_socket.js",
-    "/core/serial_node_serial.js",
-    "/core/serial_web_audio.js",
-    "/core/serial_web_bluetooth.js",
-    "/core/serial_web_serial.js",
-    "/core/serial_websocket_relay.js",
-    "/core/serial_frame.js",
-    "/core/terminal.js",
-    "/core/codeWriter.js",
-    "/core/modules.js",
-    "/core/env.js",
-    "/core/flasher.js",
-    "/core/flasherESP8266.js",
-    "/plugins/boardJSON.js",
-    "/plugins/versionChecker.js",
-    "/plugins/compiler.js",
-    "/plugins/assembler.js",
-    "/plugins/getGitHub.js",
-    "/plugins/unicode.js",
-    "/plugins/minify.js",
-    "/plugins/pretokenise.js",
-    "/plugins/saveOnSend.js",
-    "/plugins/setTime.js"
-  );
+module.exports = {
+  default: function () {
+    const resourcePath = this.resourcePath.replace(/\\/g, "/");
+    const espruinoPath = path.dirname(require.resolve("espruino"));
+    const resourceFile = this.resourcePath.startsWith(espruinoPath) ? resourcePath.substr(espruinoPath.length + 1) : "index.js";
 
-  "acorn,utf8,esprima,esmangle,escodegen".split(",").reverse().forEach(module => {
-    if (require.resolve(module)) {
-      output.unshift(`var ${module} = require("${module}");`)
+    var espruinoFiles = (this.resourceQuery.startsWith("?") ? this.resourceQuery.substr(1).split(",") : []);
+    var filePreOutput = [];
+    var filePostOutput = [];
+    var output = [];
+    var fileOutput = "";
+    var easyRequire = (mod, ...files) => hasModule(mod) && files.includes(resourceFile) && filePreOutput.push(`var ${mod} = require("${mod}");`);
+
+    if (resourceFile == "index.js" && espruinoFiles.length == 0) {
+      espruinoFiles = [
+        "espruino.js",
+        "core/utils.js",
+        "core/config.js",
+        "core/serial.js",
+        "core/serial_chrome_serial.js",
+        "core/serial_chrome_socket.js",
+        "core/serial_node_serial.js",
+        "core/serial_web_audio.js",
+        "core/serial_web_bluetooth.js",
+        "core/serial_web_serial.js",
+        "core/serial_websocket_relay.js",
+        "core/serial_frame.js",
+        "core/terminal.js",
+        "core/codeWriter.js",
+        "core/modules.js",
+        "core/env.js",
+        "core/flasher.js",
+        "core/flasherESP8266.js",
+        "plugins/boardJSON.js",
+        "plugins/versionChecker.js",
+        "plugins/compiler.js",
+        "plugins/assembler.js",
+        "plugins/getGitHub.js",
+        "plugins/unicode.js",
+        "plugins/minify.js",
+        "plugins/pretokenise.js",
+        "plugins/saveOnSend.js",
+        "plugins/setTime.js"
+      ]
     }
-  });
 
-  return `${output.join("\n").replace(/require(?:\.resolve)?\(('serialport'|'nw\.gui'|"http"|"https"|"fs")\)/g, 'undefined')}\n\nmodule.exports = Espruino;`;
+    if (resourceFile == "index.js") {
+        espruinoFiles.forEach(file => {
+          output.push(`${file == "espruino.js" ? "module.exports = " : ""}require("!!espruino-loader!espruino/${file}");`);
+        });
+        console.log(output.join("\n"));
+        return output.join("\n");
+    }
+
+    if (resourceFile == "espruino.js") {
+      filePostOutput.push('module.exports = Espruino;');
+    }
+
+    if (resourceFile != "espruino.js" && resourceFile != "index.js") {
+      filePreOutput.push('var Espruino = require("!!espruino-loader!espruino/espruino.js");');
+      filePostOutput.push('module.exports = Espruino;');
+    }
+
+    easyRequire("acorn", "plugins/pretokenise.js", "plugins/compiler.js");
+    easyRequire("escodegen", "plugins/minify.js");
+    easyRequire("esmangle", "plugins/minify.js");
+    easyRequire("esprima", "plugins/minify.js");
+    easyRequire("utf8", "plugins/unicode.js");
+
+    fileOutput = loadJS(path.join(espruinoPath, resourceFile));
+
+    if (filePreOutput.length > 0) {
+      output.push(filePreOutput.join("\n"));
+    }
+
+    output.push(fileOutput);
+
+    if (filePostOutput.length > 0) {
+      output.push(filePostOutput.join("\n"));
+    }
+
+    return output.join("\n\n");
+  }
 }
