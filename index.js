@@ -93,7 +93,7 @@ module.exports = {
         espruinoFiles.forEach(file => {
           output.push(`${file == "espruino.js" ? "module.exports = " : ""}require("!espruino-loader!espruino/${file}");`);
         });
-        console.log(output.join("\n"));
+
         return output.join("\n");
     }
 
