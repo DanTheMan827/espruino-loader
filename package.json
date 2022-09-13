@@ -1,6 +1,6 @@
 {
   "name": "espruino-loader",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "author": "Daniel Radtke (DanTheMan827)",
   "description": "Espruino loader for webpack",
   "license": "MIT",
@@ -8,13 +8,10 @@
   "scripts": {
     "test": "echo \"I don't have any tests.\""
   },
-  "devDependencies": {
-    "acorn": "^5.4.1",
-    "esmangle": "^1.0.1"
-  },
+  "devDependencies": {},
   "peerDependencies": {
-    "acorn": "^8.8.0",
-    "escodegen": "^2.0.0",
+    "acorn": "^5.4.1",
+    "escodegen": "^1.8.0",
     "esmangle": "^1.0.1",
     "espruino": "^0.1.45"
   },
