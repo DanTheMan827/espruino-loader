@@ -54,7 +54,15 @@ module.exports = {
     var filePostOutput = [];
     var output = [];
     var fileOutput = "";
-    var easyRequire = (mod, ...files) => hasModule(mod) && files.includes(resourceFile) && filePreOutput.push(`var ${mod} = require("${mod}");`);
+    var easyRequire = (mod, ...files) => {
+      if (hasModule(Array.isArray(mod) ? mod[1] : mod) && files.includes(resourceFile)) {
+        if (Array.isArray(mod)) {
+          filePreOutput.push(`var ${mod[0]} = require("${mod[1]}");`);
+        } else {
+          filePreOutput.push(`var ${mod} = require("${mod}");`);
+        }
+      }
+    };
 
     if (resourceFile == "index.js" && espruinoFiles.length == 0) {
       espruinoFiles = [
@@ -108,7 +116,7 @@ module.exports = {
 
     easyRequire("acorn", "plugins/pretokenise.js", "plugins/compiler.js");
     easyRequire("escodegen", "plugins/minify.js");
-    easyRequire("esmangle", "plugins/minify.js");
+    easyRequire(["esmangle", "esmangle2"], "plugins/minify.js");
     easyRequire("esprima", "plugins/minify.js");
     easyRequire("utf8", "plugins/unicode.js");
 
