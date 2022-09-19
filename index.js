@@ -26,7 +26,7 @@ var fs = require("fs");
 var path = require("path");
 
 function cleanIncludes(source) {
-  return source.replace(/require(?:\.resolve)?\(('serialport'|'nw\.gui'|"http"|"https"|"fs")\)/g, 'undefined');
+  return source.replace(/require(?:\.resolve)?\(('serialport'|'nw\.gui'|"http"|"https"|"fs"|m)\)/g, 'undefined');
 }
 
 function loadJS(filePath) {
